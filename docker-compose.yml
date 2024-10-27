@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  Frontend:
+    image: node:20.11.1
+    container_name: gateway_container
+    working_dir: /app
+    volumes:
+      - ./src/gateway:/app
+    command: sh -c "git clone https://github.com/AsemDiab/Front-server . && npm install && npm start"
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - ORDER_URL=http://order-server:5002
+      - CATALOG_URL=http://catalog-server:5001
+  order-server:
+    image: node:20.11.1
+    container_name: order_server_container
+    working_dir: /app
+    volumes:
+      - ./src/order:/app
+    command: sh -c "git clone https://github.com/AsemDiab/order-server . && npm install && npm start"
+    ports:
+      - "5002:5002"
+    environment:
+      - NODE_ENV=production
+      - CATALOG_URL=http://catalog-server:5001
+
+
+  catalog-server:
+    image: python:3.11
+    container_name: catalog_server_container
+    working_dir: /app
+    volumes:
+      - ./src/catalog:/app
+    command: sh -c "git clone https://github.com/AsemDiab/catalog-server . && pip install Flask  && python app.py"
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=production
